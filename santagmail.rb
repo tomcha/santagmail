@@ -9,6 +9,7 @@ config = eval File.read './.config/config.rb'
 client_id     = config[:client_id]
 client_secret = config[:client_secret]
 gmail_id = config[:gmail_id]
+capass = config[:capass]
 
 redirect_uri  = "http://localhost"
 scope         = "https://mail.google.com/" #ここの表現で出来ることを制御している？
@@ -25,4 +26,16 @@ talken = `curl -d client_id=#{client_id} -d client_secret=#{client_secret} -d re
 talken =~ /"access_token" : "(.*?)",/
 access_token = $1 if $1
 puts access_token
+
+https = Net::HTTP.new('www.googleapis.com', 443)
+https.use_ssl = true
+https.ca_file = capass
+https.verify_mode = OpenSSL::SSL::VERIFY_PEER
+https.verify_depth = 5
+
+https.start do |http|
+  res = http.get("/gmail/v1/users/#{gmail_id}/messages", {'Authorization' => "Bearer #{access_token}"})
+  puts res.body
+end
+
 
