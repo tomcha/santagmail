@@ -2,6 +2,7 @@
 # coding:utf-8
 
 require 'net/https'
+require 'json'
 
 config = eval File.read './.config/config.rb'
 
@@ -35,7 +36,9 @@ https.verify_depth = 5
 
 https.start do |http|
   res = http.get("/gmail/v1/users/#{gmail_id}/messages", {'Authorization' => "Bearer #{access_token}"})
-  puts res.body
+  @messagelist = JSON.parse(res.body)
 end
 
-
+@messagelist['messages'].each do |messagedata|
+  puts messagedata
+end
